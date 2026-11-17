@@ -6,14 +6,12 @@ public class Main {
 
         Scanner eingabe = new Scanner(System.in);
 
-
         ArrayList<Artikel> lager = new ArrayList<>();
-
-        lager.add(new Artikel("Milch", 1.19, 20));
-        lager.add(new Artikel("Brot", 0.39 , 15));
-        lager.add(new Artikel("Käse",  0.85, 10));
-        lager.add(new Artikel("Eier", 1.49, 30));
-        lager.add(new Artikel("Butter", 1.29, 31));
+        try {
+            lager = Datenbank.alleLaden();
+        } catch (Exception e) {
+            System.out.println("Fehler beim Laden: " + e.getMessage());
+        }
 
         boolean laeuft = true;
 
@@ -39,6 +37,11 @@ public class Main {
                     int bestand = eingabe.nextInt();
                     eingabe.nextLine();
                     lager.add(new Artikel(name, preis, bestand));
+                    try {
+                        Datenbank.speichern(new Artikel(name, preis, bestand));
+                    } catch (Exception e) {
+                        System.out.println("Fehler beim Speichern: " + e.getMessage());
+                    }
 
                     break;
                 case 3:
@@ -62,25 +65,27 @@ public class Main {
                     if (!gefunden) {
                         System.out.println("Artikel nicht gefunden.");
                     }
-                            
 
-                    for (Artikel artikel : lager) {
-                        if (artikel.name.equalsIgnoreCase(suche)) {
-                            artikel.bestandAendern(menge);
-                            System.out.println("Bestand von " + artikel.name + " geändert.");
+                    try {
+                        for (Artikel artikel : lager) {
+                            if (artikel.name.equalsIgnoreCase(suche)) {
+                                Datenbank.bestandAktualisieren(artikel);
+                            }
                         }
+                    } catch (Exception e) {
+                        System.out.println("Fehler beim Aktualisieren: " + e.getMessage());
                     }
                     break;
                 case 4:
                     laeuft = false;
                     break;
                 default:
-                    System.out.println("Ungültige Eingabe."); 
+                    System.out.println("Ungültige Eingabe.");
 
-                }
+            }
 
         }
-        
+
         eingabe.close();
     }
 }
